@@ -14,11 +14,15 @@ import java.util.Objects;
 
 /**
  * @author anthony-pc
+ * <p>
+ * update:7.7 add tank 2
+ * @author grliu
  */
+
 public class GameWorld extends JPanel implements Runnable {
 
     private BufferedImage world;
-    private Tank t1;
+    private Tank t1, t2;
     private final Launcher lf;
     private long tick = 0;
 
@@ -34,12 +38,13 @@ public class GameWorld extends JPanel implements Runnable {
         try {
             while (true) {
                 this.tick++;
-                this.t1.update(); // update tank
+                this.t1.update(); // update tank1
+                this.t2.update(); // update tank2
                 this.repaint();   // redraw game
                 /*
-                 * Sleep for 1000/144 ms (~6.9ms). This is done to have our 
-                 * loop run at a fixed rate per/sec. 
-                */
+                 * Sleep for 1000/144 ms (~6.9ms). This is done to have our
+                 * loop run at a fixed rate per/sec.
+                 */
                 Thread.sleep(1000 / 144);
             }
         } catch (InterruptedException ignored) {
@@ -54,18 +59,20 @@ public class GameWorld extends JPanel implements Runnable {
         this.tick = 0;
         this.t1.setX(300);
         this.t1.setY(300);
+        this.t2.setX(500);
+        this.t2.setX(500);
     }
 
     /**
      * Load all resources for Tank Wars Game. Set all Game Objects to their
      * initial state as well.
      */
-    public void InitializeGame() {
+    public void InitializeGame() {// inti 2 players tank1 & tank2 with different pic and position
         this.world = new BufferedImage(GameConstants.GAME_SCREEN_WIDTH,
                 GameConstants.GAME_SCREEN_HEIGHT,
                 BufferedImage.TYPE_INT_RGB);
 
-        BufferedImage t1img = null;
+        BufferedImage t1img = null, t2img = null;
         try {
             /*
              * note class loaders read files from the out folder (build folder in Netbeans) and not the
@@ -73,7 +80,11 @@ public class GameWorld extends JPanel implements Runnable {
              */
             t1img = ImageIO.read(
                     Objects.requireNonNull(GameWorld.class.getClassLoader().getResource("tank1.png"),
-                    "Could not find tank1.png")
+                            "Could not find tank1.png")
+            );
+            t2img = ImageIO.read(
+                    Objects.requireNonNull(GameWorld.class.getClassLoader().getResource("tank2.png"),
+                            "Could not find tank2.png")
             );
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
@@ -81,8 +92,20 @@ public class GameWorld extends JPanel implements Runnable {
         }
 
         t1 = new Tank(300, 300, 0, 0, (short) 0, t1img);
+        t2 = new Tank(500, 500, 0, 0, (short) 0, t2img);
+
+        /*
+         *
+         P1 control: wasd & space
+         P2 control: keyboard arrows & p(key)
+         */
+
         TankControl tc1 = new TankControl(t1, KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D, KeyEvent.VK_SPACE);
+        TankControl tc2 = new TankControl(t2, KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, KeyEvent.VK_P);
+
         this.lf.getJf().addKeyListener(tc1);
+        this.lf.getJf().addKeyListener(tc2);
+
     }
 
     @Override
@@ -90,6 +113,7 @@ public class GameWorld extends JPanel implements Runnable {
         Graphics2D g2 = (Graphics2D) g;
         Graphics2D buffer = world.createGraphics();
         this.t1.drawImage(buffer);
+        this.t2.drawImage(buffer);
         g2.drawImage(world, 0, 0, null);
     }
 }
