@@ -17,14 +17,17 @@ public class Tank{
     private float vy;
     private float angle;
 
-    private float R = 5;
-    private float ROTATIONSPEED = 3.0f;
+    private float R = 1;
+    private float ROTATIONSPEED = 1.0f;
 
     private BufferedImage img;
     private boolean UpPressed;
     private boolean DownPressed;
     private boolean RightPressed;
     private boolean LeftPressed;
+
+    private boolean isEnemy;
+    private boolean destroyed;
 
     Tank(float x, float y, float vx, float vy, float angle, BufferedImage img) {
         this.x = x;
@@ -147,4 +150,10 @@ public class Tank{
         g2d.drawRect((int)x,(int)y,this.img.getWidth(), this.img.getHeight());
 
     }
+
+    //destroy status
+    public void destroy() {
+        this.destroyed = true;
+    }
+
 }

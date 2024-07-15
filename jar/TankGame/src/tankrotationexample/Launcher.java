@@ -96,6 +96,7 @@ public class Launcher {
     }
 
     public static void main(String[] args) {
+        ResourceManager.loadAssets();// load all resource before start lanucher
         (new Launcher()).initUIComponents();
     }
 }
