@@ -1,5 +1,7 @@
 package tankrotationexample.game;
 
+import tankrotationexample.ResourceManager;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -12,13 +14,16 @@ import java.util.Objects;
  * Description:
  */
 public class Health {
+    float x,y;
     BufferedImage img;
+
     public Health(String imgPath) {
-        try {
-            img = ImageIO.read(Objects.requireNonNull(Health.class.getClassLoader().getResource(imgPath),
-                    "Health img is missing"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        img = ResourceManager.getSprites("health");
+    }
+
+    public Health(float x, float y, BufferedImage img) {
+        this.x = x;
+        this.y = y;
+        this.img = img;
     }
 }

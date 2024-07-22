@@ -2,10 +2,7 @@ package tankrotationexample.game;
 
 import tankrotationexample.ResourceManager;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.Objects;
 
 /**
  * 7/10/24 @ 18:19
@@ -13,15 +10,14 @@ import java.util.Objects;
  * @ Author : Guiran LIU
  * Description:
  */
-public class Speed {
-    float x, y;
+public class UnbreakableWall {
+    float x,y;
     BufferedImage img;
-
-    public Speed(String imgPath) {
-        img = ResourceManager.getSprites("speed");
+    public UnbreakableWall(String imgPath) {
+       img = ResourceManager.getSprites("ubwall");
     }
 
-    public Speed(float x, float y, BufferedImage img) {
+    public UnbreakableWall(float x, float y, BufferedImage img) {
         this.x = x;
         this.y = y;
         this.img = img;

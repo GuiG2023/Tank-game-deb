@@ -10,11 +10,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.io.InputStreamReader;
+import java.lang.reflect.Array;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author anthony-pc
@@ -29,6 +30,7 @@ public class GameWorld extends JPanel implements Runnable {
     private Tank t1, t2;
     private final Launcher lf;
     private long tick = 0;
+    ArrayList gObj = new ArrayList<>();
 
     private List<Tank> enemyTanks;
 
@@ -55,7 +57,8 @@ public class GameWorld extends JPanel implements Runnable {
                 for (Tank enemyTank : enemyTanks) {
                     enemyTank.update(); // update enemy tanks
                 }
-                checkEnemyTankCount(); // check and create enemy if needed
+
+//                checkEnemyTankCount(); // check and create enemy if needed
                 this.repaint();   // redraw game
                 /*
                  * Sleep for 1000/144 ms (~6.9ms). This is done to have our
@@ -123,14 +126,6 @@ public class GameWorld extends JPanel implements Runnable {
              * note class loaders read files from the out folder (build folder in Netbeans) and not the
              * current working directory. When running a jar, class loaders will read from within the jar.
              */
-            t1img = ImageIO.read(
-                    Objects.requireNonNull(GameWorld.class.getClassLoader().getResource("tank1.png"),
-                            "Could not find tank1.png")
-            );
-            t2img = ImageIO.read(
-                    Objects.requireNonNull(GameWorld.class.getClassLoader().getResource("tank2.png"),
-                            "Could not find tank2.png")
-            );
             enemyImg = ImageIO.read(
                     Objects.requireNonNull(GameWorld.class.getClassLoader().getResource("enemyTank1.png"),
                             "Could not find enemyTank.png")
@@ -140,8 +135,44 @@ public class GameWorld extends JPanel implements Runnable {
             ex.printStackTrace();
         }
 
-        t1 = new Tank(300, 300, 0, 0, (short) 0, ResourceManager.getSprites("t1"));
-        t2 = new Tank(500, 500, 0, 0, (short) 0, ResourceManager.getSprites("t2"));
+        int row = 0;
+        InputStreamReader isr = new InputStreamReader(
+                Objects.requireNonNull(
+                        ResourceManager.class.getClassLoader().getResourceAsStream("Map/game_map.csv")
+                )
+        );
+
+        try (BufferedReader mapReader = new BufferedReader(isr)) {
+            while (mapReader.ready()) {
+                String line = mapReader.readLine();
+                String[] objs = line.split(",");
+                System.out.println(Arrays.toString(objs));
+                for (int col = 0; col < objs.length; col++) {
+                    String gameItem = objs[col];
+                    if (gameItem.equals("9")) {//unbreakable wall
+                        this.gObj.add(new UnbreakableWall(col * 32, row * 32, ResourceManager.getSprites("ubwall")));
+                    } else if (gameItem.equals("2")) {// breakable wall
+                        this.gObj.add(new BreakableWall(col * 32, row * 32, ResourceManager.getSprites("bwall")));
+                    } else if (gameItem.equals("3")) {// river wall
+                        this.gObj.add(new RiverWall(col * 32, row * 32, ResourceManager.getSprites("riverwall")));
+                    } else if (gameItem.equals("4")) {//health
+
+                    }else if (gameItem.equals("5")) {//enemy tank
+
+                    } else if (gameItem.equals("6")) {//speed
+
+                    }
+
+
+                }
+
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        t1 = new Tank(300, 500, 0, 0, (short) 0, ResourceManager.getSprites("t1"));
+        t2 = new Tank(1000, 500, 0, 0, (short) 0, ResourceManager.getSprites("t2"));
 
         /*
          *
@@ -156,31 +187,16 @@ public class GameWorld extends JPanel implements Runnable {
         this.lf.getJf().addKeyListener(tc2);
 
         // Initialize enemy tanks
-        enemyTanks = new ArrayList<>();
         for (int i = 0; i < 5; i++) {  // init 5 enemy tanks
             float x = (float) (Math.random() * GameConstants.GAME_SCREEN_WIDTH);
             float y = (float) (Math.random() * GameConstants.GAME_SCREEN_HEIGHT);
             enemyTanks.add(new Tank(x, y, 0, 0, 0, enemyImg));
         }
 
-    }
+        //add obstacle
+        // ubwall
 
-    private void checkEnemyTankCount() {
-        // 移除被消灭的敌方坦克
-        Iterator<Tank> iterator = enemyTanks.iterator();
-        while (iterator.hasNext()) {
-            Tank enemyTank = iterator.next();
-//            if (enemyTank.isDestroyed()) {
-//                iterator.remove();
-//            }
-        }
 
-        // 如果敌方坦克数量少于最大值，则生成新的敌方坦克
-        while (enemyTanks.size() < MaxEnemies) {
-            float x = (float) (Math.random() * GameConstants.GAME_SCREEN_WIDTH);
-            float y = (float) (Math.random() * GameConstants.GAME_SCREEN_HEIGHT);
-            enemyTanks.add(new Tank(x, y, 0, 0, 0, enemyImg));
-        }
     }
 
 
@@ -196,6 +212,7 @@ public class GameWorld extends JPanel implements Runnable {
         for (Tank enemyTank : enemyTanks) {
             enemyTank.drawImage(buffer);
         }
+
         g2.drawImage(world, 0, 0, null);
     }
 }

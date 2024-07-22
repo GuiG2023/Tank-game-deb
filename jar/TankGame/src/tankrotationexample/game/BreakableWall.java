@@ -14,8 +14,15 @@ import java.util.Objects;
  * Description:
  */
 public class BreakableWall {
+    float x,y;
     BufferedImage img;
     public BreakableWall(String imgPath) {
        img = ResourceManager.getSprites("bwall");
+    }
+
+    public BreakableWall(float x, float y, BufferedImage img) {
+        this.x = x;
+        this.y = y;
+        this.img = img;
     }
 }
