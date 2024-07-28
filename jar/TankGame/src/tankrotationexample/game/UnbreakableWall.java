@@ -2,6 +2,7 @@ package tankrotationexample.game;
 
 import tankrotationexample.ResourceManager;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 /**
@@ -10,12 +11,7 @@ import java.awt.image.BufferedImage;
  * @ Author : Guiran LIU
  * Description:
  */
-public class UnbreakableWall {
-    float x,y;
-    BufferedImage img;
-    public UnbreakableWall(String imgPath) {
-       img = ResourceManager.getSprites("ubwall");
-    }
+public class UnbreakableWall extends GameObject {
 
     public UnbreakableWall(float x, float y, BufferedImage img) {
         this.x = x;

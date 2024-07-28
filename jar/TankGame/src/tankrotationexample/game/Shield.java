@@ -3,6 +3,7 @@ package tankrotationexample.game;
 import tankrotationexample.ResourceManager;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Objects;
@@ -13,13 +14,9 @@ import java.util.Objects;
  * @ Author : Guiran LIU
  * Description:
  */
-public class Shield {
-    float x, y;
-    BufferedImage img;
+public class Shield extends GameObject {
 
-    public Shield(String imgPath) {
-        img = ResourceManager.getSprites("shield");
-    }
+
 
     public Shield(float x, float y, BufferedImage img) {
         this.x = x;

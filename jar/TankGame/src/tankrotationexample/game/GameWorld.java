@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,7 +31,7 @@ public class GameWorld extends JPanel implements Runnable {
     private Tank t1, t2;
     private final Launcher lf;
     private long tick = 0;
-    ArrayList gObj = new ArrayList<>();
+    ArrayList<GameObject> gObj = new ArrayList<>(1000);
 
     private List<Tank> enemyTanks;
 
@@ -107,20 +108,10 @@ public class GameWorld extends JPanel implements Runnable {
      * initial state as well.
      */
     public void InitializeGame() {// inti 2 players tank1 & tank2 with different pic and position
-        this.world = new BufferedImage(GameConstants.GAME_SCREEN_WIDTH,
-                GameConstants.GAME_SCREEN_HEIGHT,
+        this.world = new BufferedImage(GameConstants.WORLD_WIDTH,
+                GameConstants.WORLD_HEIGHT,
                 BufferedImage.TYPE_INT_RGB);
 
-        BufferedImage
-                t1img = null,
-                t2img = null,
-                wall = null,
-                bWall = null,
-                bullet = null,
-                rocket = null,
-                speed = null,
-                health = null,
-                shield = null;// add more img
         try {
             /*
              * note class loaders read files from the out folder (build folder in Netbeans) and not the
@@ -149,23 +140,10 @@ public class GameWorld extends JPanel implements Runnable {
                 System.out.println(Arrays.toString(objs));
                 for (int col = 0; col < objs.length; col++) {
                     String gameItem = objs[col];
-                    if (gameItem.equals("9")) {//unbreakable wall
-                        this.gObj.add(new UnbreakableWall(col * 32, row * 32, ResourceManager.getSprites("ubwall")));
-                    } else if (gameItem.equals("2")) {// breakable wall
-                        this.gObj.add(new BreakableWall(col * 32, row * 32, ResourceManager.getSprites("bwall")));
-                    } else if (gameItem.equals("3")) {// river wall
-                        this.gObj.add(new RiverWall(col * 32, row * 32, ResourceManager.getSprites("riverwall")));
-                    } else if (gameItem.equals("4")) {//health
-
-                    }else if (gameItem.equals("5")) {//enemy tank
-
-                    } else if (gameItem.equals("6")) {//speed
-
-                    }
-
-
+                    if (Objects.equals(gameItem, "0")) continue;
+                    this.gObj.add(GameObject.newInstance(gameItem, col * 32, row * 32));
                 }
-
+                row++;
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -199,20 +177,53 @@ public class GameWorld extends JPanel implements Runnable {
 
     }
 
+    private void renderFloor(Graphics buffer) {
+        BufferedImage floor = ResourceManager.getSprites("background");
+        for (int i = 0; i < GameConstants.WORLD_WIDTH; i += 320) {
+            for (int j = 0; j < GameConstants.WORLD_HEIGHT; j += 240) {
+                buffer.drawImage(floor, i, j, null);
+            }
+        }
+    }
+
 
     @Override
     public void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
         Graphics2D buffer = world.createGraphics();
-        buffer.drawImage(ResourceManager.getSprites("background"), 0, 0, this.getWidth(), this.getHeight(), this);
+        this.renderFloor(buffer);
+        for (int i = 0; i < this.gObj.size(); i++) {
+            this.gObj.get(i).drawImage(buffer);
+        }
+        //buffer.drawImage(ResourceManager.getSprites("background"), 0, 0, this.getWidth(), this.getHeight(), this);
 //        buffer.setColor(Color.black);
 // dbuffer.fillRect(0, 0, GameConstants.GAME_SCREEN_WIDTH, GameConstants.GAME_SCREEN_HEIGHT);
+        this.gObj.forEach(go -> go.drawImage(buffer));
         this.t1.drawImage(buffer);
         this.t2.drawImage(buffer);
         for (Tank enemyTank : enemyTanks) {
             enemyTank.drawImage(buffer);
         }
+        this.displaySplitScreen(g2);
+        this.displayMiniMap(g2);
+//        g2.drawImage(world, 0, 0, null);
+    }
 
-        g2.drawImage(world, 0, 0, null);
+
+    static double scaleFactor = .15;
+    private void displayMiniMap(Graphics2D onScreenPanel) {
+        BufferedImage mm =this.world.getSubimage(0,0,GameConstants.WORLD_WIDTH,GameConstants.WORLD_HEIGHT);
+        double mmx = GameConstants.GAME_SCREEN_WIDTH/2. - (GameConstants.WORLD_WIDTH*scaleFactor)/2.;
+        double mmy = GameConstants.GAME_SCREEN_HEIGHT - (GameConstants.WORLD_HEIGHT*scaleFactor);
+        AffineTransform scaler = AffineTransform.getTranslateInstance(mmx,mmy);
+        scaler.scale(scaleFactor,scaleFactor);
+        onScreenPanel.drawImage(mm,scaler,null);
+
+    }
+    private void displaySplitScreen(Graphics2D onScreenPanel) {
+        BufferedImage lh = this.world.getSubimage((int)this.t1.getScreen_x(),(int)this.t1.getScreen_y(),GameConstants.GAME_SCREEN_WIDTH/2,GameConstants.GAME_SCREEN_HEIGHT);
+        BufferedImage rh = this.world.getSubimage((int)this.t2.getScreen_x(),(int)this.t2.getScreen_y(),GameConstants.GAME_SCREEN_WIDTH/2,GameConstants.GAME_SCREEN_HEIGHT);
+        onScreenPanel.drawImage(lh,0,0,null);
+        onScreenPanel.drawImage(rh,GameConstants.GAME_SCREEN_WIDTH/2+2,0,null);
     }
 }

@@ -1,16 +1,20 @@
 package tankrotationexample.game;
 
 import tankrotationexample.GameConstants;
+
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 /**
- *
  * @author anthony-pc
  */
-public class Tank{
-
+public class Tank {
+    /**
+     * handle the collision
+     */
+    private float screen_x;
+    private float screen_y;
     private float x;
     private float y;
     private float vx;
@@ -38,9 +42,29 @@ public class Tank{
         this.angle = angle;
     }
 
-    void setX(float x){ this.x = x; }
+    public float getScreen_x() {
+        return screen_x;
+    }
 
-    void setY(float y) { this. y = y;}
+    public float getScreen_y() {
+        return screen_y;
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    void setX(float x) {
+        this.x = x;
+    }
+
+    void setY(float y) {
+        this.y = y;
+    }
 
     void toggleUpPressed() {
         this.UpPressed = true;
@@ -90,7 +114,7 @@ public class Tank{
         if (this.RightPressed) {
             this.rotateRight();
         }
-
+        centerScreen();
 
     }
 
@@ -103,11 +127,11 @@ public class Tank{
     }
 
     private void moveBackwards() {
-        vx =  Math.round(R * Math.cos(Math.toRadians(angle)));
-        vy =  Math.round(R * Math.sin(Math.toRadians(angle)));
+        vx = Math.round(R * Math.cos(Math.toRadians(angle)));
+        vy = Math.round(R * Math.sin(Math.toRadians(angle)));
         x -= vx;
         y -= vy;
-       checkBorder();
+        checkBorder();
     }
 
     private void moveForwards() {
@@ -118,18 +142,30 @@ public class Tank{
         checkBorder();
     }
 
+    private void centerScreen() {
+        this.screen_x = this.x - GameConstants.GAME_SCREEN_WIDTH / 4f;
+        this.screen_y = this.y - GameConstants.GAME_SCREEN_HEIGHT / 4f;
+
+        if (this.screen_x < 0) screen_x = 0;
+        if (this.screen_y < 0) screen_y = 0;
+
+        if (this.screen_x > GameConstants.WORLD_WIDTH - GameConstants.GAME_SCREEN_WIDTH / 2f) {
+            screen_x = GameConstants.WORLD_WIDTH - GameConstants.GAME_SCREEN_WIDTH / 2f;
+        }
+        if (this.screen_y > GameConstants.WORLD_HEIGHT - GameConstants.GAME_SCREEN_HEIGHT) {
+            this.screen_y = GameConstants.WORLD_HEIGHT - GameConstants.GAME_SCREEN_HEIGHT;
+        }
+    }
 
     private void checkBorder() {
-        if (x < 30) {
-            x = 30;
+        if (x < 30) x = 30;
+        if (y < 40) y = 40;
+        if (x >= GameConstants.WORLD_HEIGHT - 88) {
+            x = GameConstants.WORLD_WIDTH - 88;
         }
-        if (x >= GameConstants.GAME_SCREEN_WIDTH - 88) {
-            x = GameConstants.GAME_SCREEN_WIDTH - 88;
-        }
-        if (y < 40) {
-            y = 40;
-        }
-        if (y >= GameConstants.GAME_SCREEN_HEIGHT - 80) {
+
+
+        if (y >= GameConstants.WORLD_HEIGHT - 80) {
             y = GameConstants.GAME_SCREEN_HEIGHT - 80;
         }
     }
@@ -147,7 +183,17 @@ public class Tank{
         g2d.drawImage(this.img, rotation, null);
         g2d.setColor(Color.RED);
         //g2d.rotate(Math.toRadians(angle), bounds.x + bounds.width/2, bounds.y + bounds.height/2);
-        g2d.drawRect((int)x,(int)y,this.img.getWidth(), this.img.getHeight());
+        g2d.drawRect((int) x, (int) y, this.img.getWidth(), this.img.getHeight());
+
+    }
+
+    public void handleCollision(Object with) {
+        if (with instanceof Bullet bullet) {
+            // lose hp
+        } else if (with instanceof UnbreakableWall ubwall) {
+            // stop move
+        }
+
 
     }
 

@@ -3,6 +3,7 @@ package tankrotationexample.game;
 import tankrotationexample.ResourceManager;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Objects;
@@ -13,13 +14,8 @@ import java.util.Objects;
  * @ Author : Guiran LIU
  * Description:
  */
-public class Speed {
-    float x, y;
-    BufferedImage img;
+public class Speed extends GameObject {
 
-    public Speed(String imgPath) {
-        img = ResourceManager.getSprites("speed");
-    }
 
     public Speed(float x, float y, BufferedImage img) {
         this.x = x;

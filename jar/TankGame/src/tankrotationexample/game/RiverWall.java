@@ -2,6 +2,7 @@ package tankrotationexample.game;
 
 import tankrotationexample.ResourceManager;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 /**
@@ -10,12 +11,7 @@ import java.awt.image.BufferedImage;
  * @ Author : Guiran LIU
  * Description:
  */
-public class RiverWall {
-    float x,y;
-    BufferedImage img;
-    public RiverWall(String imgPath) {
-       img = ResourceManager.getSprites("riverwall");
-    }
+public class RiverWall extends GameObject {
 
     public RiverWall(float x, float y, BufferedImage img) {
         this.x = x;
