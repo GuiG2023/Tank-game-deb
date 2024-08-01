@@ -72,18 +72,7 @@ public class Bullet extends GameObject implements Poolable,Updatable {
     }
 
 
-    private void checkBorder() {
-        if (x < 30) x = 30;
-        if (y < 40) y = 40;
-        if (x >= GameConstants.WORLD_HEIGHT - 88) {
-            x = GameConstants.WORLD_WIDTH - 88;
-        }
 
-
-        if (y >= GameConstants.WORLD_HEIGHT - 80) {
-            y = GameConstants.GAME_SCREEN_HEIGHT - 80;
-        }
-    }
 
 
     public void drawImage(Graphics2D g) {
@@ -99,18 +88,16 @@ public class Bullet extends GameObject implements Poolable,Updatable {
 
 
     //destroy status
-    public void destroy() {
-        this.destroyed = true;
-    }
 
     public void update(GameWorld gw) {
         vx = Math.round(R * Math.cos(Math.toRadians(angle)));
         vy = Math.round(R * Math.sin(Math.toRadians(angle)));
         x += vx;
         y += vy;
-        checkBorder();
+        //checkBorder();
         this.hitBox.setLocation((int) x, (int) y);
     }
+
 
     @Override
     public void initObject(float x, float y) {

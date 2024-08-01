@@ -36,11 +36,16 @@ public class Tank extends GameObject implements Updatable {
 
     private boolean shootPressed;
 
-    private final long coolDown = 2000;
-    private long timeSinceLastShot = 0;
+    final long coolDown = 1000;
+    long timeSinceLastShot = 0;
 
-    private boolean isEnemy;
-    private boolean destroyed;
+    //private boolean isEnemy;
+    private boolean destroyed = false;
+
+
+    public int getTkID() {
+        return tkID;
+    }
 
     Tank(float x, float y, float vx, float vy, float angle, BufferedImage img) {
         super(x, y, img);
@@ -172,7 +177,7 @@ public class Tank extends GameObject implements Updatable {
         checkBorder();
     }
 
-    private void moveForwards() {
+    void moveForwards() {
         vx = Math.round(R * Math.cos(Math.toRadians(angle)));
         vy = Math.round(R * Math.sin(Math.toRadians(angle)));
         x += vx;
@@ -224,12 +229,16 @@ public class Tank extends GameObject implements Updatable {
 
 
     //destroy status
-    public void destroy() {
-        this.destroyed = true;
-    }
 
 //    public void setSpeed(float speed){
 //        this.R = speed
 //    }
+public boolean isDestroyed() {
+    return destroyed; // 返回坦克的摧毁状态
+}
+
+    public void destroy() {
+        this.destroyed = true; // 将坦克设置为已摧毁状态
+    }
 
 }

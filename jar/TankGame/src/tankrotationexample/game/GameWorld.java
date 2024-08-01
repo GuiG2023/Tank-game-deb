@@ -60,9 +60,6 @@ public class GameWorld extends JPanel implements Runnable {
                         break;
                     }
                 }
-                for (Tank enemyTank : enemyTanks) {
-                    enemyTank.update(this); // update enemy tanks
-                }
 //                for (GameObject obj : gObj) { // for debugging
 //                    System.out.println(obj);
 //                }
@@ -96,9 +93,9 @@ public class GameWorld extends JPanel implements Runnable {
     private void checkCollision() {
         for (int i = 0; i < this.gObj.size(); i++) {
             GameObject object1 = this.gObj.get(i);
-            for (int j = i + 1; j < this.gObj.size(); j++) {
+            for (int j= 0; j < this.gObj.size(); j++) {
                 GameObject object2 = this.gObj.get(j);
-
+                if (j == i) continue;
                 if (object1.getHitbox().intersects(object2.getHitbox())) {
 //                    System.out.println("Collision Detected");
                     handleCollision(object1, object2);
@@ -109,15 +106,16 @@ public class GameWorld extends JPanel implements Runnable {
     }
 
     private void handleCollision(GameObject obj1, GameObject obj2) {
-
-        if (obj1 instanceof Bullet && obj2 instanceof BreakableWall) {
-            obj1.setHasCollided(true);
-            obj2.setHasCollided(true);
-        } else if (obj2 instanceof Bullet && obj1 instanceof BreakableWall) {
+        if (obj2 instanceof Bullet && obj1 instanceof BreakableWall) {
             obj2.setHasCollided(true);
             obj1.setHasCollided(true);
+        } else if (obj2 instanceof Bullet bullet && obj1 instanceof Tank tank) {
+            if (bullet.getOwner() != tank.getTkID()) {
+                obj2.setHasCollided(true);
+                obj1.setHasCollided(true);
+            }
         }
-        System.out.println("after handled");
+
     }
 
     /**
@@ -202,10 +200,12 @@ public class GameWorld extends JPanel implements Runnable {
         this.lf.getJf().addKeyListener(tc2);
 
         // Initialize enemy tanks
-        for (int i = 0; i < 5; i++) {  // init 5 enemy tanks
+        for (int i = 0; i < MaxEnemies; i++) {
             float x = (float) (Math.random() * GameConstants.GAME_SCREEN_WIDTH);
             float y = (float) (Math.random() * GameConstants.GAME_SCREEN_HEIGHT);
-            enemyTanks.add(new Tank(x, y, 0, 0, 0, enemyImg));
+            Tank enemy = new Tank(x, y, 0, 0, 0, enemyImg);
+            enemyTanks.add(enemy);
+            this.addGameObject(enemy);
         }
 
         //add obstacle
@@ -237,8 +237,13 @@ public class GameWorld extends JPanel implements Runnable {
 // dbuffer.fillRect(0, 0, GameConstants.GAME_SCREEN_WIDTH, GameConstants.GAME_SCREEN_HEIGHT);
         List<GameObject> copy = new ArrayList<>(gObj);
         copy.forEach(go -> go.drawImage(buffer));
+        if (!this.t1.getHasCollided()){
         this.t1.drawImage(buffer);
-        this.t2.drawImage(buffer);
+        }
+        if (!this.t2.getHasCollided()){
+            this.t2.drawImage(buffer);
+        }
+
         for (Tank enemyTank : enemyTanks) {
             enemyTank.drawImage(buffer);
         }
