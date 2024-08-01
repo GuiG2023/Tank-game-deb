@@ -14,8 +14,6 @@ import java.awt.image.BufferedImage;
 public class UnbreakableWall extends GameObject {
 
     public UnbreakableWall(float x, float y, BufferedImage img) {
-        this.x = x;
-        this.y = y;
-        this.img = img;
+        super(x, y, img);
     }
 }

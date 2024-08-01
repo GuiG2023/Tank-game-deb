@@ -1,22 +1,26 @@
 package tankrotationexample.game;
 
 import tankrotationexample.GameConstants;
+import tankrotationexample.ResourceManager;
+import tankrotationexample.ResourcePools;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 /**
  * @author anthony-pc
  */
-public class Tank {
+public class Tank extends GameObject implements Updatable {
     /**
      * handle the collision
      */
+    private int tkID;
     private float screen_x;
     private float screen_y;
-    private float x;
-    private float y;
     private float vx;
     private float vy;
     private float angle;
@@ -30,12 +34,17 @@ public class Tank {
     private boolean RightPressed;
     private boolean LeftPressed;
 
+    private boolean shootPressed;
+
+    private final long coolDown = 2000;
+    private long timeSinceLastShot = 0;
+
     private boolean isEnemy;
     private boolean destroyed;
 
     Tank(float x, float y, float vx, float vy, float angle, BufferedImage img) {
-        this.x = x;
-        this.y = y;
+        super(x, y, img);
+        this.tkID = new Random().nextInt(300);
         this.vx = vx;
         this.vy = vy;
         this.img = img;
@@ -98,7 +107,15 @@ public class Tank {
         this.LeftPressed = false;
     }
 
-    void update() {
+    void toggleShootPressed() {
+        this.shootPressed = true;
+    }
+
+    void unToggleShootPressed() {
+        this.shootPressed = false;
+    }
+
+    public void update(GameWorld gw) {
         if (this.UpPressed) {
             this.moveForwards();
         }
@@ -114,8 +131,29 @@ public class Tank {
         if (this.RightPressed) {
             this.rotateRight();
         }
-        centerScreen();
 
+        long currentTime = System.currentTimeMillis();
+
+        if (this.shootPressed && currentTime > this.timeSinceLastShot + this.coolDown) {
+            this.timeSinceLastShot = currentTime;
+            var p = ResourcePools.getPoolInstance("bullet");
+            p.initObject(x, y, angle);
+            Bullet b = (Bullet) p;
+            b.setOwner(this.tkID);
+            gw.addGameObject((Bullet) p);
+//            GameWorld.gObj.add((Bullet) p);
+//            this.ammo.add(
+//                    new Bullet(x + this.img.getWidth() / 2f,
+//                            y + 10 + this.img.getWidth() / 2f,
+//                            angle, ResourceManager.getSprites("bullet")));
+        }
+
+        // use flag control power ups?
+
+
+        centerScreen();
+        this.hitBox.setLocation((int) x, (int) y);
+//        System.out.println(hitBox.x +"  "+ hitBox.y);
     }
 
     private void rotateLeft() {
@@ -165,8 +203,8 @@ public class Tank {
         }
 
 
-        if (y >= GameConstants.WORLD_HEIGHT - 80) {
-            y = GameConstants.GAME_SCREEN_HEIGHT - 80;
+        if (y >= GameConstants.WORLD_HEIGHT - 115) {
+            y = GameConstants.GAME_SCREEN_HEIGHT - 115;
         }
     }
 
@@ -175,31 +213,23 @@ public class Tank {
         return "x=" + x + ", y=" + y + ", angle=" + angle;
     }
 
-
-    void drawImage(Graphics g) {
+    public void drawImage(Graphics2D g) {
         AffineTransform rotation = AffineTransform.getTranslateInstance(x, y);
         rotation.rotate(Math.toRadians(angle), this.img.getWidth() / 2.0, this.img.getHeight() / 2.0);
-        Graphics2D g2d = (Graphics2D) g;
-        g2d.drawImage(this.img, rotation, null);
-        g2d.setColor(Color.RED);
+        ((Graphics2D) g).drawImage(this.img, rotation, null);
+        ((Graphics2D) g).setColor(Color.RED);
         //g2d.rotate(Math.toRadians(angle), bounds.x + bounds.width/2, bounds.y + bounds.height/2);
-        g2d.drawRect((int) x, (int) y, this.img.getWidth(), this.img.getHeight());
-
+        ((Graphics2D) g).drawRect((int) x, (int) y, this.img.getWidth(), this.img.getHeight());
     }
 
-    public void handleCollision(Object with) {
-        if (with instanceof Bullet bullet) {
-            // lose hp
-        } else if (with instanceof UnbreakableWall ubwall) {
-            // stop move
-        }
-
-
-    }
 
     //destroy status
     public void destroy() {
         this.destroyed = true;
     }
+
+//    public void setSpeed(float speed){
+//        this.R = speed
+//    }
 
 }

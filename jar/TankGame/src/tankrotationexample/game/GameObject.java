@@ -16,9 +16,21 @@ public abstract class GameObject {
      *
      * @param  abastract to type
      */
-
+private static ResourcePool<Bullet> bulletResourcePool = new ResourcePool<>("bullet",Bullet.class,500);
     protected float x, y; // if private ,need getter and setter
     protected BufferedImage img;
+    protected Rectangle hitBox;
+
+    protected boolean hasCollided = false;
+
+//    private static int ID = 0;
+
+    public GameObject(float x, float y, BufferedImage img) {
+        this.x = x;
+        this.y = y;
+        this.img = img;
+        hitBox = new Rectangle((int) x,(int) y,this.img.getWidth(),this.img.getHeight());
+    }
 
     public static GameObject newInstance(String type, float x, float y) {
         return switch (type) {
@@ -29,7 +41,24 @@ public abstract class GameObject {
         };
     }
 
-    public void drawImage(Graphics g){
+    public void drawImage(Graphics2D g){
         g.drawImage(this.img, (int)x,(int)y, null);
     }
+
+    public Rectangle getHitbox(){
+        return this.hitBox.getBounds();
+    }
+
+    public boolean getHasCollided() {
+        return this.hasCollided;
+    }
+    public void setHasCollided(boolean hasCollided) {
+        this.hasCollided = hasCollided;
+    }
+
+
+//    public int getId() {
+//        return this.id;
+//    }
+
 }

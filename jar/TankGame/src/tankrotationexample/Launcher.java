@@ -1,8 +1,12 @@
 package tankrotationexample;
 
+import tankrotationexample.game.Bullet;
 import tankrotationexample.game.GameWorld;
+import tankrotationexample.game.Poolable;
+import tankrotationexample.game.ResourcePool;
 import tankrotationexample.menus.EndGamePanel;
 import tankrotationexample.menus.StartMenuPanel;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowEvent;
@@ -35,14 +39,14 @@ public class Launcher {
      */
     private CardLayout cl;
 
-    public Launcher(){
+    public Launcher() {
         this.jf = new JFrame();             // creating a new JFrame object
         this.jf.setTitle("Tank Wars Game"); // setting the title of the JFrame window.
         // when the GUI is closed, this will also shut down the VM
         this.jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    private void initUIComponents(){
+    private void initUIComponents() {
         this.mainPanel = new JPanel(); // create a new main panel
         /*
          * start panel will be used to view the start menu. It will contain
@@ -66,7 +70,7 @@ public class Launcher {
         this.setFrame("start"); // set the current panel to start panel
     }
 
-    public void setFrame(String type){
+    public void setFrame(String type) {
         this.jf.setVisible(false); // hide the JFrame
         switch (type) {
             case "start" ->
@@ -91,12 +95,17 @@ public class Launcher {
         return jf;
     }
 
-    public void closeGame(){
+    public void closeGame() {
         this.jf.dispatchEvent(new WindowEvent(this.jf, WindowEvent.WINDOW_CLOSING));
     }
 
     public static void main(String[] args) {
         ResourceManager.loadAssets();// load all resource before start lanucher
+        ResourcePools.addPool("bullet",
+                new ResourcePool<Bullet>("bullet",
+                        Bullet.class, 500).
+                        fillPool(500));
+
         (new Launcher()).initUIComponents();
     }
 }

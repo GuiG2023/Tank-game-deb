@@ -35,7 +35,7 @@ public class ResourceManager {
         ResourceManager.sprites.put("riverwall",loadSprite("riverwall.png"));
         //ResourceManager.sprites.put("health",loadSprite("health.png"));
         ResourceManager.sprites.put("background",loadSprite("Background.bmp"));
-
+        ResourceManager.sprites.put("bullet",loadSprite("bullet.png"));
 
 
     }

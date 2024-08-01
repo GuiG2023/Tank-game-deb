@@ -38,6 +38,7 @@ public class GameWorld extends JPanel implements Runnable {
     private final int MaxEnemies = 5;
     private BufferedImage enemyImg;
 
+
     /**
      *
      */
@@ -48,16 +49,25 @@ public class GameWorld extends JPanel implements Runnable {
 
     @Override
     public void run() {
-        //world.getSubimage();
+        this.resetGame();
         try {
             while (true) {
                 this.tick++;
-                this.t1.update(); // update tank1
-                this.t2.update(); // update tank2
-
-                for (Tank enemyTank : enemyTanks) {
-                    enemyTank.update(); // update enemy tanks
+                for (int i = this.gObj.size()-1; i>=0 ; i--) {
+                    if (this.gObj.get(i) instanceof Updatable u){
+                        u.update(this);
+                    }else {
+                        break;
+                    }
                 }
+                for (Tank enemyTank : enemyTanks) {
+                    enemyTank.update(this); // update enemy tanks
+                }
+//                for (GameObject obj : gObj) { // for debugging
+//                    System.out.println(obj);
+//                }
+                this.checkCollision();
+
 
 //                checkEnemyTankCount(); // check and create enemy if needed
                 this.repaint();   // redraw game
@@ -83,6 +93,32 @@ public class GameWorld extends JPanel implements Runnable {
         }
     }
 
+    private void checkCollision() {
+        for (int i = 0; i < this.gObj.size(); i++) {
+            GameObject object1 = this.gObj.get(i);
+            for (int j = i + 1; j < this.gObj.size(); j++) {
+                GameObject object2 = this.gObj.get(j);
+
+                if (object1.getHitbox().intersects(object2.getHitbox())) {
+//                    System.out.println("Collision Detected");
+                    handleCollision(object1, object2);
+                }
+            }
+        }
+        this.gObj.removeIf(GameObject::getHasCollided);
+    }
+
+    private void handleCollision(GameObject obj1, GameObject obj2) {
+
+        if (obj1 instanceof Bullet && obj2 instanceof BreakableWall) {
+            obj1.setHasCollided(true);
+            obj2.setHasCollided(true);
+        } else if (obj2 instanceof Bullet && obj1 instanceof BreakableWall) {
+            obj2.setHasCollided(true);
+            obj1.setHasCollided(true);
+        }
+        System.out.println("after handled");
+    }
 
     /**
      * Reset game to its initial state.
@@ -90,7 +126,7 @@ public class GameWorld extends JPanel implements Runnable {
     public void resetGame() {//reset all the resource
         this.tick = 0;
         this.t1.setX(300);
-        this.t1.setY(300);
+        this.t1.setY(500);
         this.t2.setX(500);
         this.t2.setX(500);
 
@@ -150,8 +186,9 @@ public class GameWorld extends JPanel implements Runnable {
         }
 
         t1 = new Tank(300, 500, 0, 0, (short) 0, ResourceManager.getSprites("t1"));
-        t2 = new Tank(1000, 500, 0, 0, (short) 0, ResourceManager.getSprites("t2"));
-
+        t2 = new Tank(500, 500, 0, 0, (short) 0, ResourceManager.getSprites("t2"));
+        this.gObj.add(t1);
+        this.gObj.add(t2);
         /*
          *
          P1 control: wasd & space
@@ -198,7 +235,8 @@ public class GameWorld extends JPanel implements Runnable {
         //buffer.drawImage(ResourceManager.getSprites("background"), 0, 0, this.getWidth(), this.getHeight(), this);
 //        buffer.setColor(Color.black);
 // dbuffer.fillRect(0, 0, GameConstants.GAME_SCREEN_WIDTH, GameConstants.GAME_SCREEN_HEIGHT);
-        this.gObj.forEach(go -> go.drawImage(buffer));
+        List<GameObject> copy = new ArrayList<>(gObj);
+        copy.forEach(go -> go.drawImage(buffer));
         this.t1.drawImage(buffer);
         this.t2.drawImage(buffer);
         for (Tank enemyTank : enemyTanks) {
@@ -210,20 +248,26 @@ public class GameWorld extends JPanel implements Runnable {
     }
 
 
-    static double scaleFactor = .15;
+    static double scaleFactor = .20;
+
     private void displayMiniMap(Graphics2D onScreenPanel) {
-        BufferedImage mm =this.world.getSubimage(0,0,GameConstants.WORLD_WIDTH,GameConstants.WORLD_HEIGHT);
-        double mmx = GameConstants.GAME_SCREEN_WIDTH/2. - (GameConstants.WORLD_WIDTH*scaleFactor)/2.;
-        double mmy = GameConstants.GAME_SCREEN_HEIGHT - (GameConstants.WORLD_HEIGHT*scaleFactor);
-        AffineTransform scaler = AffineTransform.getTranslateInstance(mmx,mmy);
-        scaler.scale(scaleFactor,scaleFactor);
-        onScreenPanel.drawImage(mm,scaler,null);
+        BufferedImage mm = this.world.getSubimage(0, 0, GameConstants.WORLD_WIDTH, GameConstants.WORLD_HEIGHT);
+        double mmx = GameConstants.GAME_SCREEN_WIDTH / 2. - (GameConstants.WORLD_WIDTH * scaleFactor) / 2.;
+        double mmy = GameConstants.GAME_SCREEN_HEIGHT - (GameConstants.WORLD_HEIGHT * scaleFactor);
+        AffineTransform scaler = AffineTransform.getTranslateInstance(mmx, mmy);
+        scaler.scale(scaleFactor, scaleFactor);
+        onScreenPanel.drawImage(mm, scaler, null);
 
     }
+
     private void displaySplitScreen(Graphics2D onScreenPanel) {
-        BufferedImage lh = this.world.getSubimage((int)this.t1.getScreen_x(),(int)this.t1.getScreen_y(),GameConstants.GAME_SCREEN_WIDTH/2,GameConstants.GAME_SCREEN_HEIGHT);
-        BufferedImage rh = this.world.getSubimage((int)this.t2.getScreen_x(),(int)this.t2.getScreen_y(),GameConstants.GAME_SCREEN_WIDTH/2,GameConstants.GAME_SCREEN_HEIGHT);
-        onScreenPanel.drawImage(lh,0,0,null);
-        onScreenPanel.drawImage(rh,GameConstants.GAME_SCREEN_WIDTH/2+2,0,null);
+        BufferedImage lh = this.world.getSubimage((int) this.t1.getScreen_x(), (int) this.t1.getScreen_y(), GameConstants.GAME_SCREEN_WIDTH / 2, GameConstants.GAME_SCREEN_HEIGHT);
+        BufferedImage rh = this.world.getSubimage((int) this.t2.getScreen_x(), (int) this.t2.getScreen_y(), GameConstants.GAME_SCREEN_WIDTH / 2, GameConstants.GAME_SCREEN_HEIGHT);
+        onScreenPanel.drawImage(lh, 0, 0, null);
+        onScreenPanel.drawImage(rh, GameConstants.GAME_SCREEN_WIDTH / 2 + 2, 0, null);
+    }
+
+    public void addGameObject(GameObject g) {
+        this.gObj.add(g);
     }
 }
