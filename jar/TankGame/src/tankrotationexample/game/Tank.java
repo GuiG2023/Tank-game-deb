@@ -14,7 +14,7 @@ import java.util.Random;
 /**
  * @author anthony-pc
  */
-public class Tank extends GameObject implements Updatable {
+public class Tank extends GameObject implements Updatable, Collidable {
     /**
      * handle the collision
      */
@@ -23,10 +23,10 @@ public class Tank extends GameObject implements Updatable {
     private float screen_y;
     private float vx;
     private float vy;
-    private float angle;
+    float angle;
 
-    private float R = 1;
-    private float ROTATIONSPEED = 1.0f;
+    private float R = (float) 1.5;
+    float ROTATIONSPEED = 1.0f;
 
     private BufferedImage img;
     private boolean UpPressed;
@@ -200,7 +200,7 @@ public class Tank extends GameObject implements Updatable {
         }
     }
 
-    private void checkBorder() {
+    void checkBorder() {
         if (x < 30) x = 30;
         if (y < 40) y = 40;
         if (x >= GameConstants.WORLD_HEIGHT - 88) {
@@ -230,15 +230,44 @@ public class Tank extends GameObject implements Updatable {
 
     //destroy status
 
-//    public void setSpeed(float speed){
+    //    public void setSpeed(float speed){
 //        this.R = speed
 //    }
-public boolean isDestroyed() {
-    return destroyed; // 返回坦克的摧毁状态
-}
+    public boolean isDestroyed() {
+        return destroyed; // 返回坦克的摧毁状态
+    }
 
     public void destroy() {
         this.destroyed = true; // 将坦克设置为已摧毁状态
     }
 
+    @Override
+    public Rectangle getHitBox() {
+        return this.hitBox;
+    }
+
+    public void stopMovement() {
+        this.vx = 0;
+        this.vy = 0;
+        this.unToggleDownPressed();
+        this.unToggleUpPressed();
+        this.unToggleLeftPressed();
+        this.unToggleRightPressed();
+
+
+    }
+
+    public void carriedMovement() {
+        this.x = x-(float) 0.4;
+    }
+
+    public void slowMovement() {
+        this.unToggleDownPressed();
+        this.unToggleUpPressed();
+        this.unToggleLeftPressed();
+        this.unToggleRightPressed();
+        this.vx = 0;
+        this.vy = 0;
+
+    }
 }

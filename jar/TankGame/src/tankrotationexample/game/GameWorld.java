@@ -53,10 +53,10 @@ public class GameWorld extends JPanel implements Runnable {
         try {
             while (true) {
                 this.tick++;
-                for (int i = this.gObj.size()-1; i>=0 ; i--) {
-                    if (this.gObj.get(i) instanceof Updatable u){
+                for (int i = this.gObj.size() - 1; i >= 0; i--) {
+                    if (this.gObj.get(i) instanceof Updatable u) {
                         u.update(this);
-                    }else {
+                    } else {
                         break;
                     }
                 }
@@ -93,7 +93,7 @@ public class GameWorld extends JPanel implements Runnable {
     private void checkCollision() {
         for (int i = 0; i < this.gObj.size(); i++) {
             GameObject object1 = this.gObj.get(i);
-            for (int j= 0; j < this.gObj.size(); j++) {
+            for (int j = 0; j < this.gObj.size(); j++) {
                 GameObject object2 = this.gObj.get(j);
                 if (j == i) continue;
                 if (object1.getHitbox().intersects(object2.getHitbox())) {
@@ -114,6 +114,13 @@ public class GameWorld extends JPanel implements Runnable {
                 obj2.setHasCollided(true);
                 obj1.setHasCollided(true);
             }
+        } else if (obj1 instanceof Tank && obj2 instanceof BreakableWall) {
+            ((Tank) obj1).stopMovement();
+            obj2.setHasCollided(true);
+        } else if (obj1 instanceof Tank && obj2 instanceof RiverWall) {
+            ((Tank) obj1).carriedMovement();
+        } else if (obj1 instanceof Tank && obj2 instanceof Sand) {
+            ((Tank) obj1).slowMovement();
         }
 
     }
@@ -203,7 +210,7 @@ public class GameWorld extends JPanel implements Runnable {
         for (int i = 0; i < MaxEnemies; i++) {
             float x = (float) (Math.random() * GameConstants.GAME_SCREEN_WIDTH);
             float y = (float) (Math.random() * GameConstants.GAME_SCREEN_HEIGHT);
-            Tank enemy = new Tank(x, y, 0, 0, 0, enemyImg);
+            Tank enemy = new EnemyTank(x, y, enemyImg, t1);
             enemyTanks.add(enemy);
             this.addGameObject(enemy);
         }
@@ -237,16 +244,16 @@ public class GameWorld extends JPanel implements Runnable {
 // dbuffer.fillRect(0, 0, GameConstants.GAME_SCREEN_WIDTH, GameConstants.GAME_SCREEN_HEIGHT);
         List<GameObject> copy = new ArrayList<>(gObj);
         copy.forEach(go -> go.drawImage(buffer));
-        if (!this.t1.getHasCollided()){
-        this.t1.drawImage(buffer);
+        if (!this.t1.getHasCollided()) {
+            this.t1.drawImage(buffer);
         }
-        if (!this.t2.getHasCollided()){
+        if (!this.t2.getHasCollided()) {
             this.t2.drawImage(buffer);
         }
 
-        for (Tank enemyTank : enemyTanks) {
-            enemyTank.drawImage(buffer);
-        }
+//        for (Tank enemyTank : enemyTanks) {
+//            enemyTank.drawImage(buffer);
+//        }
         this.displaySplitScreen(g2);
         this.displayMiniMap(g2);
 //        g2.drawImage(world, 0, 0, null);

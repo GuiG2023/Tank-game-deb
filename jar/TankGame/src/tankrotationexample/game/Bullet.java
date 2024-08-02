@@ -12,7 +12,7 @@ import java.awt.image.BufferedImage;
  * @ Author : Guiran LIU
  * Description:
  */
-public class Bullet extends GameObject implements Poolable,Updatable {
+public class Bullet extends GameObject implements Poolable,Updatable,Collidable {
 
     private float vx;
     private float vy;
@@ -38,7 +38,7 @@ public class Bullet extends GameObject implements Poolable,Updatable {
     }
 
     public Bullet(float x, float y, float angle, BufferedImage img) {
-        super(0, 0, img);
+        super(x, y, img);
         this.vx = 0;
         this.vy = 0;
         this.angle = angle;
@@ -124,6 +124,11 @@ public class Bullet extends GameObject implements Poolable,Updatable {
 
     public int getOwner() {
         return this.tkID;
+    }
+
+    @Override
+    public Rectangle getHitBox() {
+        return this.hitBox;
     }
 }
 

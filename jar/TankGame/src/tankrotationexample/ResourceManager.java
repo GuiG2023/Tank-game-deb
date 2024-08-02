@@ -1,5 +1,7 @@
 package tankrotationexample;
 
+import tankrotationexample.game.Sound;
+
 import javax.imageio.ImageIO;
 import javax.sound.sampled.Clip;
 import java.awt.image.BufferedImage;
@@ -17,7 +19,7 @@ import java.util.Objects;
  */
 public class ResourceManager {
     private final static Map<String, BufferedImage> sprites = new HashMap<>();
-    private final static Map<String, Clip> sounds = new HashMap<>();
+    private final static Map<String, Sound> sounds = new HashMap<>();
     private final static Map<String, List<BufferedImage>> animations = new HashMap<>();
 
     private static BufferedImage loadSprite(String path) throws IOException {
@@ -33,9 +35,12 @@ public class ResourceManager {
         ResourceManager.sprites.put("bwall",loadSprite("bwall.png"));
         ResourceManager.sprites.put("ubwall",loadSprite("ubwall.png"));
         ResourceManager.sprites.put("riverwall",loadSprite("riverwall.png"));
-        //ResourceManager.sprites.put("health",loadSprite("health.png"));
+        ResourceManager.sprites.put("health",loadSprite("health.png"));
         ResourceManager.sprites.put("background",loadSprite("Background.bmp"));
         ResourceManager.sprites.put("bullet",loadSprite("bullet.png"));
+        ResourceManager.sprites.put("shield",loadSprite("shield3.png"));
+        ResourceManager.sprites.put("speed",loadSprite("speed.png"));
+        ResourceManager.sprites.put("sand",loadSprite("sand.png"));
 
 
     }
@@ -55,6 +60,24 @@ public class ResourceManager {
             );
         }
         return ResourceManager.sprites.get(key);
+    }
+
+    public static Sound getSound(String key){
+        if (!ResourceManager.sounds.containsKey(key)){
+            throw new IllegalArgumentException(
+                    "Resource %s is not in map".formatted(key)
+            );
+        }
+        return ResourceManager.sounds.get(key);
+    }
+
+    public static List<BufferedImage> getAnim(String key){
+        if (!ResourceManager.animations.containsKey(key)){
+            throw new IllegalArgumentException(
+                    "Resource %s is not in map".formatted(key)
+            );
+        }
+        return ResourceManager.animations.get(key);
     }
 
     public static void main(String[] args) throws IOException {

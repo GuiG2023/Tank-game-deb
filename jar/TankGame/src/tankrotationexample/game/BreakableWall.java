@@ -14,10 +14,15 @@ import java.util.Objects;
  * @ Author : Guiran LIU
  * Description:
  */
-public class BreakableWall extends GameObject {
+public class BreakableWall extends GameObject implements Collidable {
 
 
     public BreakableWall(float x, float y, BufferedImage img) {
         super(x, y, img);
+    }
+
+    @Override
+    public Rectangle getHitBox() {
+        return this.hitBox;
     }
 }

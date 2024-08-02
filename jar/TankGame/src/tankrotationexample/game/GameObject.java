@@ -37,6 +37,10 @@ private static ResourcePool<Bullet> bulletResourcePool = new ResourcePool<>("bul
             case "9" -> new UnbreakableWall(x, y, ResourceManager.getSprites("ubwall"));
             case "2" -> new BreakableWall(x, y, ResourceManager.getSprites("bwall"));
             case "3" -> new RiverWall(x, y, ResourceManager.getSprites("riverwall"));
+            case "4" -> new Sand(x, y, ResourceManager.getSprites("sand"));
+            case "5" -> new Health(x, y, ResourceManager.getSprites("health"));
+            case "6" -> new Shield(x, y, ResourceManager.getSprites("shield"));
+            case "7" -> new Speed(x, y, ResourceManager.getSprites("speed"));
             default -> throw new IllegalArgumentException("unsupported type --> %s\n".formatted(type));
         };
     }
