@@ -1,6 +1,7 @@
 package tankrotationexample.game;
 
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 
 /**
  * 8/1/24 @ 22:36
@@ -38,4 +39,16 @@ public class Sound {
     public void loopContinue() {
         this.clip.loop(Clip.LOOP_CONTINUOUSLY);
     }
+
+    public void setVolume(float level) {
+        FloatControl volume = (FloatControl) this.clip.getControl(FloatControl.Type.MASTER_GAIN);
+        volume.setValue((float) Math.log10(level));
+    }
+    public void setVolumeToMax() {
+        FloatControl volume = (FloatControl) this.clip.getControl(FloatControl.Type.MASTER_GAIN);
+        float maxValue = volume.getMaximum();
+        volume.setValue(maxValue);
+    }
+
+
 }

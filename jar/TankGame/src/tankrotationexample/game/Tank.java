@@ -25,7 +25,7 @@ public class Tank extends GameObject implements Updatable, Collidable {
     private float vy;
     float angle;
 
-    private float R = (float) 1.5;
+    private float R = 2;
     float ROTATIONSPEED = 1.0f;
 
     private BufferedImage img;
@@ -145,7 +145,11 @@ public class Tank extends GameObject implements Updatable, Collidable {
             p.initObject(x, y, angle);
             Bullet b = (Bullet) p;
             b.setOwner(this.tkID);
-            gw.addGameObject((Bullet) p);
+            gw.addGameObject(b);
+            Sound fire = ResourceManager.getSound("fire");
+            fire.setVolumeToMax();
+            fire.play();
+            gw.animations.add(new Animation(x,y,ResourceManager.getAnim("explosion_sm")));
 //            GameWorld.gObj.add((Bullet) p);
 //            this.ammo.add(
 //                    new Bullet(x + this.img.getWidth() / 2f,

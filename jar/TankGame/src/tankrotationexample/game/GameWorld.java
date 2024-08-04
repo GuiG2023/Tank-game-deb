@@ -32,7 +32,7 @@ public class GameWorld extends JPanel implements Runnable {
     private final Launcher lf;
     private long tick = 0;
     ArrayList<GameObject> gObj = new ArrayList<>(1000);
-
+    List<Animation> animations = new ArrayList<>();
     private List<Tank> enemyTanks;
 
     private final int MaxEnemies = 5;
@@ -50,7 +50,31 @@ public class GameWorld extends JPanel implements Runnable {
     @Override
     public void run() {
         this.resetGame();
+
+        /**
+         * Battle city classic start bgm
+         */
+        Sound startBgm = ResourceManager.getSound("start");
+        startBgm.setVolume(1);
+        startBgm.play();
+        /**
+         *
+         * Street Fighter classic bgm: Guile's
+         *
+         * (But too loud to hear others', lol)
+         */
+//        try {
+//            Thread.sleep(5000 + 1000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        Sound theme = ResourceManager.getSound("theme");
+//        theme.setVolume(1);
+//        theme.loopContinue();
+//        theme.play();
+
         try {
+            this.animations.add(new Animation(100,100,ResourceManager.getAnim("explosion_lg")));
             while (true) {
                 this.tick++;
                 for (int i = this.gObj.size() - 1; i >= 0; i--) {
@@ -60,11 +84,11 @@ public class GameWorld extends JPanel implements Runnable {
                         break;
                     }
                 }
-//                for (GameObject obj : gObj) { // for debugging
-//                    System.out.println(obj);
-//                }
+                //renderFrame();
                 this.checkCollision();
-
+                for (int i = 0; i < this.animations.size(); i++) {
+                    this.animations.get(i).update();
+                }
 
 //                checkEnemyTankCount(); // check and create enemy if needed
                 this.repaint();   // redraw game
@@ -77,13 +101,13 @@ public class GameWorld extends JPanel implements Runnable {
 //                if (t1.died && t2.died){
 //                    return;
 ////                }
-                //if all enemies are destoryed
+                //if all enemies are destroyed
 
 //                if (tick>500){ //end the game
 //                    this.lf.setFrame("end");
 //                    return;
 //                }
-                Thread.sleep(1000 / 144);
+                Thread.sleep(10);
             }
         } catch (InterruptedException ignored) {
             System.out.println(ignored);
@@ -107,15 +131,21 @@ public class GameWorld extends JPanel implements Runnable {
 
     private void handleCollision(GameObject obj1, GameObject obj2) {
         if (obj2 instanceof Bullet && obj1 instanceof BreakableWall) {
+            animations.add(new Animation((obj1.x),(obj1.y),ResourceManager.getAnim("explosion_sm")));
+
+            ResourceManager.getSound("wallBroken").play();
             obj2.setHasCollided(true);
             obj1.setHasCollided(true);
         } else if (obj2 instanceof Bullet bullet && obj1 instanceof Tank tank) {
             if (bullet.getOwner() != tank.getTkID()) {
+                animations.add(new Animation((obj1.x),(obj1.y),ResourceManager.getAnim("explosion_lg")));
+                ResourceManager.getSound("tankBroken").play();
                 obj2.setHasCollided(true);
                 obj1.setHasCollided(true);
             }
         } else if (obj1 instanceof Tank && obj2 instanceof BreakableWall) {
             ((Tank) obj1).stopMovement();
+            animations.add(new Animation((obj1.x),(obj1.y),ResourceManager.getAnim("explosion_sm")));
             obj2.setHasCollided(true);
         } else if (obj1 instanceof Tank && obj2 instanceof RiverWall) {
             ((Tank) obj1).carriedMovement();
@@ -221,6 +251,19 @@ public class GameWorld extends JPanel implements Runnable {
 
     }
 
+    private void renderFrame() {
+        Graphics2D buffer = world.createGraphics();
+        this.renderFloor(buffer);
+
+        for (int i = 0; i < this.gObj.size(); i++) {
+            this.gObj.get(i).drawImage(buffer);
+        }
+        for (int i = 0; i < this.animations.size(); i++) {
+            this.animations.get(i).render(buffer);
+        }
+
+    }
+
     private void renderFloor(Graphics buffer) {
         BufferedImage floor = ResourceManager.getSprites("background");
         for (int i = 0; i < GameConstants.WORLD_WIDTH; i += 320) {
@@ -238,6 +281,9 @@ public class GameWorld extends JPanel implements Runnable {
         this.renderFloor(buffer);
         for (int i = 0; i < this.gObj.size(); i++) {
             this.gObj.get(i).drawImage(buffer);
+        }
+        for (int i = 0; i < this.animations.size(); i++) {
+            this.animations.get(i).render(buffer);
         }
         //buffer.drawImage(ResourceManager.getSprites("background"), 0, 0, this.getWidth(), this.getHeight(), this);
 //        buffer.setColor(Color.black);
