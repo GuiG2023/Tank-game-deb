@@ -74,7 +74,7 @@ public class GameWorld extends JPanel implements Runnable {
 //        theme.play();
 
         try {
-            this.animations.add(new Animation(100,100,ResourceManager.getAnim("explosion_lg")));
+            this.animations.add(new Animation(100, 100, ResourceManager.getAnim("explosion_lg")));
             while (true) {
                 this.tick++;
                 for (int i = this.gObj.size() - 1; i >= 0; i--) {
@@ -131,24 +131,28 @@ public class GameWorld extends JPanel implements Runnable {
 
     private void handleCollision(GameObject obj1, GameObject obj2) {
         if (obj2 instanceof Bullet && obj1 instanceof BreakableWall) {
-            animations.add(new Animation((obj1.x),(obj1.y),ResourceManager.getAnim("explosion_sm")));
+            animations.add(new Animation((obj1.x), (obj1.y), ResourceManager.getAnim("explosion_sm")));
 
             ResourceManager.getSound("wallBroken").play();
             obj2.setHasCollided(true);
             obj1.setHasCollided(true);
         } else if (obj2 instanceof Bullet bullet && obj1 instanceof Tank tank) {
             if (bullet.getOwner() != tank.getTkID()) {
-                animations.add(new Animation((obj1.x),(obj1.y),ResourceManager.getAnim("explosion_lg")));
+                animations.add(new Animation((obj1.x), (obj1.y), ResourceManager.getAnim("explosion_lg")));
                 ResourceManager.getSound("tankBroken").play();
                 obj2.setHasCollided(true);
-                obj1.setHasCollided(true);
+                ((Tank) obj1).takeDamage();
+                if (((Tank) obj1).isDestroyed()) {
+                    obj1.setHasCollided(true);
+                }
             }
         } else if (obj1 instanceof Tank && obj2 instanceof BreakableWall) {
             ((Tank) obj1).stopMovement();
-            animations.add(new Animation((obj1.x),(obj1.y),ResourceManager.getAnim("explosion_sm")));
+            animations.add(new Animation((obj1.x), (obj1.y), ResourceManager.getAnim("explosion_sm")));
             obj2.setHasCollided(true);
         } else if (obj1 instanceof Tank && obj2 instanceof RiverWall) {
             ((Tank) obj1).carriedMovement();
+            ((Tank) obj1).restoreMovement();
         } else if (obj1 instanceof Tank && obj2 instanceof Sand) {
             ((Tank) obj1).slowMovement();
         }

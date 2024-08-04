@@ -12,7 +12,7 @@ import java.awt.image.BufferedImage;
  * @ Author : Guiran LIU
  * Description:
  */
-public class Bullet extends GameObject implements Poolable,Updatable,Collidable {
+public class Bullet extends GameObject implements Poolable, Updatable, Collidable {
 
     private float vx;
     private float vy;
@@ -72,16 +72,12 @@ public class Bullet extends GameObject implements Poolable,Updatable,Collidable 
     }
 
 
-
-
-
     public void drawImage(Graphics2D g) {
         AffineTransform rotation = AffineTransform.getTranslateInstance(x, y);
         rotation.rotate(Math.toRadians(angle), this.img.getWidth() / 2.0, this.img.getHeight() / 2.0);
-        ((Graphics2D) g).drawImage(this.img, rotation, null);
-        ((Graphics2D) g).setColor(Color.RED);
-        //g2d.rotate(Math.toRadians(angle), bounds.x + bounds.width/2, bounds.y + bounds.height/2);
-        ((Graphics2D) g).drawRect((int) x, (int) y, this.img.getWidth(), this.img.getHeight());
+        g.drawImage(this.img, rotation, null);
+        g.setColor(Color.RED);
+        g.drawRect((int) x, (int) y, this.img.getWidth(), this.img.getHeight());
 
 
     }

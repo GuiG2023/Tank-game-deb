@@ -26,6 +26,7 @@ public class Tank extends GameObject implements Updatable, Collidable {
     float angle;
 
     private float R = 2;
+    private float tempSpeed;
     float ROTATIONSPEED = 1.0f;
 
     private BufferedImage img;
@@ -42,6 +43,12 @@ public class Tank extends GameObject implements Updatable, Collidable {
     //private boolean isEnemy;
     private boolean destroyed = false;
 
+    private int lives = 3;
+    private int healthPerLife = 3;
+    private int currentHealth = healthPerLife;
+
+    private float startX, startY;
+
 
     public int getTkID() {
         return tkID;
@@ -54,6 +61,8 @@ public class Tank extends GameObject implements Updatable, Collidable {
         this.vy = vy;
         this.img = img;
         this.angle = angle;
+        this.startX = x;
+        this.startY = y;
     }
 
     public float getScreen_x() {
@@ -120,6 +129,14 @@ public class Tank extends GameObject implements Updatable, Collidable {
         this.shootPressed = false;
     }
 
+    public float safeShootX() {
+       return this.x + this.img.getWidth() / 2f;
+
+    }
+    public float safeShootY() {
+        return this.y + this.img.getHeight() / 2f;
+    }
+
     public void update(GameWorld gw) {
         if (this.UpPressed) {
             this.moveForwards();
@@ -136,20 +153,19 @@ public class Tank extends GameObject implements Updatable, Collidable {
         if (this.RightPressed) {
             this.rotateRight();
         }
-
         long currentTime = System.currentTimeMillis();
 
         if (this.shootPressed && currentTime > this.timeSinceLastShot + this.coolDown) {
             this.timeSinceLastShot = currentTime;
             var p = ResourcePools.getPoolInstance("bullet");
-            p.initObject(x, y, angle);
+            p.initObject(safeShootX(), safeShootY(), angle);
             Bullet b = (Bullet) p;
             b.setOwner(this.tkID);
             gw.addGameObject(b);
             Sound fire = ResourceManager.getSound("fire");
             fire.setVolumeToMax();
             fire.play();
-            gw.animations.add(new Animation(x,y,ResourceManager.getAnim("explosion_sm")));
+            gw.animations.add(new Animation(x, y, ResourceManager.getAnim("explosion_sm")));
 //            GameWorld.gObj.add((Bullet) p);
 //            this.ammo.add(
 //                    new Bullet(x + this.img.getWidth() / 2f,
@@ -225,10 +241,30 @@ public class Tank extends GameObject implements Updatable, Collidable {
     public void drawImage(Graphics2D g) {
         AffineTransform rotation = AffineTransform.getTranslateInstance(x, y);
         rotation.rotate(Math.toRadians(angle), this.img.getWidth() / 2.0, this.img.getHeight() / 2.0);
-        ((Graphics2D) g).drawImage(this.img, rotation, null);
-        ((Graphics2D) g).setColor(Color.RED);
+        g.drawImage(this.img, rotation, null);
+        g.setColor(Color.RED);
         //g2d.rotate(Math.toRadians(angle), bounds.x + bounds.width/2, bounds.y + bounds.height/2);
-        ((Graphics2D) g).drawRect((int) x, (int) y, this.img.getWidth(), this.img.getHeight());
+        g.drawRect((int) x, (int) y, this.img.getWidth(), this.img.getHeight());
+        int barWidth = 50;
+        int barHeight = 5;
+        int segmentWidth = barWidth / healthPerLife;
+/***
+ *
+ * draw life bar and lives
+ */
+        GradientPaint gp = new GradientPaint(x, y - 20, Color.BLACK, x + barWidth, y - 20, Color.RED);
+        g.setColor(new Color(50, 50, 50));
+        g.fillRect((int) x, (int) (y - 20), barWidth, barHeight);
+        g.setPaint(gp);
+        g.fillRect((int) x, (int) (y - 20), barWidth, barHeight);
+        Color darkGreen = new Color(0, 128, 0);
+        g.setColor(darkGreen);
+        g.fillRect((int) x, (int) (y - 20), segmentWidth * currentHealth, barHeight);
+
+        g.setColor(Color.WHITE);
+        g.drawRect((int) x, (int) (y - 20), barWidth, barHeight);
+        g.drawString("Lives: " + lives, x, y - 30);
+
     }
 
 
@@ -238,11 +274,11 @@ public class Tank extends GameObject implements Updatable, Collidable {
 //        this.R = speed
 //    }
     public boolean isDestroyed() {
-        return destroyed; // 返回坦克的摧毁状态
+        return destroyed;
     }
 
     public void destroy() {
-        this.destroyed = true; // 将坦克设置为已摧毁状态
+        this.destroyed = true;
     }
 
     @Override
@@ -262,16 +298,31 @@ public class Tank extends GameObject implements Updatable, Collidable {
     }
 
     public void carriedMovement() {
-        this.x = x-(float) 0.4;
+        this.x = x - (float) 0.4;
     }
 
     public void slowMovement() {
-        this.unToggleDownPressed();
-        this.unToggleUpPressed();
-        this.unToggleLeftPressed();
-        this.unToggleRightPressed();
-        this.vx = 0;
-        this.vy = 0;
+        this.R = 1;
+    }
+    public void restoreMovement() {
+        this.R = 2;
+    }
 
+    public void takeDamage() {
+        this.currentHealth -= 1;
+        if (this.currentHealth <= 0) {
+            this.lives -= 1;
+            this.currentHealth = healthPerLife;
+            if (lives > 0) {
+                resetPosition();
+            } else {
+                destroy();
+            }
+        }
+    }
+
+    private void resetPosition() {
+        this.x = startX;
+        this.y = startY;
     }
 }
