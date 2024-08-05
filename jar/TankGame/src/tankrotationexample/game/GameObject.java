@@ -61,9 +61,6 @@ private static ResourcePool<Bullet> bulletResourcePool = new ResourcePool<>("bul
         this.hasCollided = hasCollided;
     }
 
-
-
-
 //    public int getId() {
 //        return this.id;
 //    }

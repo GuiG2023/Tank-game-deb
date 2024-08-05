@@ -40,11 +40,12 @@ public class Tank extends GameObject implements Updatable, Collidable {
 
     private boolean shootPressed;
 
-    final long coolDown = 1000;
+    final long coolDown = 500;
     long timeSinceLastShot = 0;
 
     //private boolean isEnemy;
     private boolean destroyed = false;
+    private boolean shootBoostFlag =false;
 
     private int lives = 3;
     private int healthPerLife = 4;
@@ -195,9 +196,26 @@ public class Tank extends GameObject implements Updatable, Collidable {
     private void shoot(GameWorld gw) {
         if (multiDirectionalShootingEnabled) {
             multiDirectionShoot(gw);
+        } else if (shootBoostFlag) {//to be continue..... new mode
+            shootBoost(gw);
         } else {
             normalShoot(gw);
         }
+    }
+
+    private void shootBoost(GameWorld gw) {// //to be continue..... new mode
+        var p = ResourcePools.getPoolInstance("bullet");
+        float[] angles = new float[]{-2,2};
+        for (float shootAngle : angles) {
+            p.initObject(safeShootX(), safeShootY(), angle);
+            Bullet b = new Bullet(safeShootX(), safeShootY(), this.angle + shootAngle, ResourceManager.getSprites("bullet"));
+            b.setOwner(this.tkID);
+            gw.addGameObject(b);
+        }
+        Sound fire = ResourceManager.getSound("fire");
+        fire.setVolumeToMax();
+        fire.play();
+        gw.animations.add(new Animation(x, y, ResourceManager.getAnim("explosion_sm")));
     }
 
     protected void normalShoot(GameWorld gw) {
@@ -214,7 +232,7 @@ public class Tank extends GameObject implements Updatable, Collidable {
 
     private void multiDirectionShoot(GameWorld gw) {
         var p = ResourcePools.getPoolInstance("bullet");
-        float[] angles = new float[]{-30, 0, 30};
+        float[] angles = new float[]{-15, 0, 15};
         for (float shootAngle : angles) {
             p.initObject(safeShootX(), safeShootY(), angle);
             Bullet b = new Bullet(safeShootX(), safeShootY(), this.angle + shootAngle, ResourceManager.getSprites("bullet"));
@@ -403,5 +421,9 @@ public class Tank extends GameObject implements Updatable, Collidable {
 
         this.x -= this.vx;
         this.y -= this.vy;
+    }
+
+    public void applyBoost() {
+         shootBoostFlag = true;
     }
 }

@@ -174,6 +174,8 @@ public class GameWorld extends JPanel implements Runnable {
                 ((Tank) obj1).takeDamage();
                 if (((Tank) obj1).isDestroyed()) {
                     obj1.setHasCollided(true);
+//                    Promoted powerUp = new Promoted(100, 100, ResourceManager.getSprites("pro"));
+//                    this.addGameObject(powerUp);
                 }
             }
         } else if (obj1 instanceof Tank && obj2 instanceof BreakableWall) {
@@ -226,6 +228,9 @@ public class GameWorld extends JPanel implements Runnable {
             }
 
             tank.stopMovement2();
+        } else if (obj1 instanceof Tank && obj2 instanceof Promoted) {
+            ResourceManager.getSound("pickup2").play();
+            ((Tank) obj1).applyBoost();
         }
 
     }

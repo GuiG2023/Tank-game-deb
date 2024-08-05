@@ -19,7 +19,7 @@ public class Bullet extends GameObject implements Poolable, Updatable, Collidabl
     private float angle;
     private int tkID = -1;
 
-    private float R = 4;
+    private float R = 7;
     private float ROTATIONSPEED = 1.0f;
 
 
@@ -28,12 +28,14 @@ public class Bullet extends GameObject implements Poolable, Updatable, Collidabl
     private boolean isEnemy;
     private boolean destroyed;
 
+
     public Bullet(BufferedImage img) { //for resource pool
         super(0, 0, img);
         this.vx = 0;
         this.vy = 0;
         this.angle = 0;
         this.img = img;
+
 
     }
 
@@ -126,5 +128,6 @@ public class Bullet extends GameObject implements Poolable, Updatable, Collidabl
     public Rectangle getHitBox() {
         return this.hitBox;
     }
+
 }
 

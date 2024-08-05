@@ -56,6 +56,8 @@ public class ResourceManager {
         ResourceManager.sprites.put("speed", loadSprite("speed.png"));
         ResourceManager.sprites.put("sand", loadSprite("sand.png"));
         ResourceManager.sprites.put("bw2", loadSprite("wall1.png"));
+        ResourceManager.sprites.put("pro", loadSprite("Shield3.png"));
+
 
 
     }
