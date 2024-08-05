@@ -12,7 +12,7 @@ import java.awt.image.BufferedImage;
  * Description:
  */
 public class UnbreakableWall extends GameObject {
-
+    private int hitCount;
     public UnbreakableWall(float x, float y, BufferedImage img) {
         super(x, y, img);
     }

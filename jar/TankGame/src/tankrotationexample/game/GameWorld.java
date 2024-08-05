@@ -14,7 +14,6 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.List;
 
@@ -35,7 +34,7 @@ public class GameWorld extends JPanel implements Runnable {
     List<Animation> animations = new ArrayList<>();
     private List<Tank> enemyTanks;
 
-    private final int MaxEnemies = 5;
+    private final int MaxEnemies = 4;
     private BufferedImage enemyImg;
 
 
@@ -98,9 +97,11 @@ public class GameWorld extends JPanel implements Runnable {
                  */
 
                 //when to end the game?
-//                if (t1.died && t2.died){
-//                    return;
-////                }
+                if (t1.isDestroyed() || t2.isDestroyed()) {
+                    checkWinner();
+                    this.lf.setFrame("end");
+                    return;// Switch to end game panel// Exit the game loop
+                }
                 //if all enemies are destroyed
 
 //                if (tick>500){ //end the game
@@ -112,6 +113,35 @@ public class GameWorld extends JPanel implements Runnable {
         } catch (InterruptedException ignored) {
             System.out.println(ignored);
         }
+    }
+
+    private void checkWinner() {
+        if (t1.isDestroyed() && !t2.isDestroyed()) {
+            displayWinner("Player 2 Wins!");
+        } else if (!t1.isDestroyed() && t2.isDestroyed()) {
+            displayWinner("Player 1 Wins!");
+        }
+    }
+
+    private void displayWinner(String s) {
+        JLabel winnerLabel = new JLabel(s, SwingConstants.CENTER);
+        winnerLabel.setFont(new Font("Arial", Font.BOLD, 64));
+        winnerLabel.setSize(this.getSize());
+        winnerLabel.setForeground(Color.RED);
+
+        this.add(winnerLabel);
+        winnerLabel.setVisible(true);
+        repaint();
+
+        Sound startBgm = ResourceManager.getSound("end");
+        startBgm.setVolume(1);
+        startBgm.play();
+        try {
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+       this.remove(winnerLabel);
     }
 
     private void checkCollision() {
@@ -155,6 +185,47 @@ public class GameWorld extends JPanel implements Runnable {
             ((Tank) obj1).restoreMovement();
         } else if (obj1 instanceof Tank && obj2 instanceof Sand) {
             ((Tank) obj1).slowMovement();
+        } else if (obj1 instanceof Tank && obj2 instanceof Speed) {
+            ResourceManager.getSound("pickup1").play();
+            obj2.setHasCollided(true);
+            ((Tank) obj1).fastMovement();
+        }else if (obj1 instanceof Tank && obj2 instanceof Health){
+            ResourceManager.getSound("pickup2").play();
+            ((Tank) obj1).addLife();
+            obj2.setHasCollided(true);
+        }else if (obj1 instanceof Tank && obj2 instanceof ShootEnhance){
+            ResourceManager.getSound("pickup2").play();
+            ((Tank) obj1).enableMultiDirectionalShooting();;
+            obj2.setHasCollided(true);
+        } else if (obj1 instanceof  Tank && obj2 instanceof Tank) {
+            ((Tank) obj1).stopMovement();
+            ((Tank) obj2).stopMovement();
+
+        } else if (obj2 instanceof Bullet && obj1 instanceof UnbreakableWall2) {
+            UnbreakableWall2 wall = (UnbreakableWall2) obj1;
+            wall.increaseHitCount();
+            obj2.setHasCollided(true);
+            if (wall.isDestroyed()) {
+                wall.setHasCollided(true);
+            }
+        } else if (obj1 instanceof Tank && obj2 instanceof UnbreakableWall2) {
+            Tank tank = (Tank) obj1;
+            UnbreakableWall2 wall = (UnbreakableWall2) obj2;
+            Rectangle tankRect = tank.getHitBox();
+            Rectangle wallRect = wall.getHitBox();
+            if (tankRect.getMaxX() > wallRect.getMinX() && tank.getVx() > 0) { // 坦克从左侧碰撞墙体
+                tank.setX((float) (wallRect.getMinX() - tankRect.width));
+            } else if (tankRect.getMinX() < wallRect.getMaxX() && tank.getVx() < 0) { // 坦克从右侧碰撞墙体
+                tank.setX((float) wallRect.getMaxX());
+            }
+
+            if (tankRect.getMaxY() > wallRect.getMinY() && tank.getVy() > 0) { // 坦克从上方碰撞墙体
+                tank.setY((float) (wallRect.getMinY() - tankRect.height));
+            } else if (tankRect.getMinY() < wallRect.getMaxY() && tank.getVy() < 0) { // 坦克从下方碰撞墙体
+                tank.setY((float) wallRect.getMaxY());
+            }
+
+            tank.stopMovement2();
         }
 
     }
@@ -163,21 +234,23 @@ public class GameWorld extends JPanel implements Runnable {
      * Reset game to its initial state.
      */
     public void resetGame() {//reset all the resource
+
         this.tick = 0;
         this.t1.setX(300);
         this.t1.setY(500);
         this.t2.setX(500);
         this.t2.setX(500);
 
-        // Reset enemy tanks
+
+        gObj.clear();
         enemyTanks.clear();
         for (int i = 0; i < 5; i++) {
             float x = (float) (Math.random() * GameConstants.GAME_SCREEN_WIDTH);
             float y = (float) (Math.random() * GameConstants.GAME_SCREEN_HEIGHT);
             enemyTanks.add(new Tank(x, y, 0, 0, 0, enemyImg));
         }
+        InitializeGame();
     }
-
     /**
      * Load all resources for Tank Wars Game. Set all Game Objects to their
      * initial state as well.
@@ -224,8 +297,8 @@ public class GameWorld extends JPanel implements Runnable {
             throw new RuntimeException(e);
         }
 
-        t1 = new Tank(300, 500, 0, 0, (short) 0, ResourceManager.getSprites("t1"));
-        t2 = new Tank(500, 500, 0, 0, (short) 0, ResourceManager.getSprites("t2"));
+        t1 = new Tank(200, 500, 0, 0, (short) 0, ResourceManager.getSprites("t1"));
+        t2 = new Tank(1300, 1300, 0, 0, (short) 0, ResourceManager.getSprites("t2"));
         this.gObj.add(t1);
         this.gObj.add(t2);
         /*
@@ -239,20 +312,37 @@ public class GameWorld extends JPanel implements Runnable {
 
         this.lf.getJf().addKeyListener(tc1);
         this.lf.getJf().addKeyListener(tc2);
-
+        initializeEnemyTanks();
         // Initialize enemy tanks
-        for (int i = 0; i < MaxEnemies; i++) {
-            float x = (float) (Math.random() * GameConstants.GAME_SCREEN_WIDTH);
-            float y = (float) (Math.random() * GameConstants.GAME_SCREEN_HEIGHT);
-            Tank enemy = new EnemyTank(x, y, enemyImg, t1);
-            enemyTanks.add(enemy);
-            this.addGameObject(enemy);
-        }
+//        for (int i = 0; i < MaxEnemies; i++) {
+//            float x = (float) (Math.random() * GameConstants.GAME_SCREEN_WIDTH);
+//            float y = (float) (Math.random() * GameConstants.GAME_SCREEN_HEIGHT);
+//            Tank enemy = new EnemyTank(x, y, enemyImg, t1,t2);
+//            enemyTanks.add(enemy);
+//            this.addGameObject(enemy);
+//        }
 
         //add obstacle
         // ubwall
 
 
+    }
+    public void initializeEnemyTanks() {
+        Random random = new Random();
+        for (int i = 0; i < MaxEnemies; i++) {
+            float x, y;
+            boolean clear;
+            do {
+                x = random.nextFloat() * GameConstants.GAME_SCREEN_WIDTH;
+                y = random.nextFloat() * GameConstants.GAME_SCREEN_HEIGHT;
+                Tank tempTank = new EnemyFort(x, y, enemyImg, t1, t2);
+                clear = isPositionClear(tempTank.getHitBox());
+            } while (!clear);
+
+            Tank enemy = new EnemyFort(x, y, enemyImg, t1, t2);
+            enemyTanks.add(enemy);
+            this.addGameObject(enemy);
+        }
     }
 
     private void renderFrame() {
@@ -331,5 +421,13 @@ public class GameWorld extends JPanel implements Runnable {
 
     public void addGameObject(GameObject g) {
         this.gObj.add(g);
+    }
+    private boolean isPositionClear(Rectangle newTankRect) {
+        for (GameObject obj : gObj) {
+            if (newTankRect.intersects(obj.getHitbox())) {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -4,7 +4,10 @@ import tankrotationexample.GameConstants;
 import tankrotationexample.ResourceManager;
 import tankrotationexample.ResourcePools;
 
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -25,9 +28,9 @@ public class Tank extends GameObject implements Updatable, Collidable {
     private float vy;
     float angle;
 
-    private float R = 2;
+    private float R = 3;
     private float tempSpeed;
-    float ROTATIONSPEED = 1.0f;
+    float ROTATIONSPEED = 3.0f;
 
     private BufferedImage img;
     private boolean UpPressed;
@@ -48,6 +51,16 @@ public class Tank extends GameObject implements Updatable, Collidable {
     private int currentHealth = healthPerLife;
 
     private float startX, startY;
+
+    public float getVx() {
+        return vx;
+    }
+
+    public float getVy() {
+        return vy;
+    }
+
+    private boolean multiDirectionalShootingEnabled = false;
 
 
     public int getTkID() {
@@ -130,9 +143,10 @@ public class Tank extends GameObject implements Updatable, Collidable {
     }
 
     public float safeShootX() {
-       return this.x + this.img.getWidth() / 2f;
+        return this.x + this.img.getWidth() / 2f;
 
     }
+
     public float safeShootY() {
         return this.y + this.img.getHeight() / 2f;
     }
@@ -157,20 +171,17 @@ public class Tank extends GameObject implements Updatable, Collidable {
 
         if (this.shootPressed && currentTime > this.timeSinceLastShot + this.coolDown) {
             this.timeSinceLastShot = currentTime;
-            var p = ResourcePools.getPoolInstance("bullet");
-            p.initObject(safeShootX(), safeShootY(), angle);
-            Bullet b = (Bullet) p;
-            b.setOwner(this.tkID);
-            gw.addGameObject(b);
-            Sound fire = ResourceManager.getSound("fire");
-            fire.setVolumeToMax();
-            fire.play();
-            gw.animations.add(new Animation(x, y, ResourceManager.getAnim("explosion_sm")));
-//            GameWorld.gObj.add((Bullet) p);
-//            this.ammo.add(
-//                    new Bullet(x + this.img.getWidth() / 2f,
-//                            y + 10 + this.img.getWidth() / 2f,
-//                            angle, ResourceManager.getSprites("bullet")));
+            shoot(gw);
+//            var p = ResourcePools.getPoolInstance("bullet");
+//            p.initObject(safeShootX(), safeShootY(), angle);
+//            Bullet b = (Bullet) p;
+//            b.setOwner(this.tkID);
+//            gw.addGameObject(b);
+//            Sound fire = ResourceManager.getSound("fire");
+//            fire.setVolumeToMax();
+//            fire.play();
+//            gw.animations.add(new Animation(x, y, ResourceManager.getAnim("explosion_sm")));
+//
         }
 
         // use flag control power ups?
@@ -179,6 +190,41 @@ public class Tank extends GameObject implements Updatable, Collidable {
         centerScreen();
         this.hitBox.setLocation((int) x, (int) y);
 //        System.out.println(hitBox.x +"  "+ hitBox.y);
+    }
+
+    private void shoot(GameWorld gw) {
+        if (multiDirectionalShootingEnabled) {
+            multiDirectionShoot(gw);
+        } else {
+            normalShoot(gw);
+        }
+    }
+
+    protected void normalShoot(GameWorld gw) {
+        var p = ResourcePools.getPoolInstance("bullet");
+        p.initObject(safeShootX(), safeShootY(), angle);
+        Bullet b = (Bullet) p;
+        b.setOwner(this.tkID);
+        gw.addGameObject(b);
+        Sound fire = ResourceManager.getSound("fire");
+        fire.setVolumeToMax();
+        fire.play();
+        gw.animations.add(new Animation(x, y, ResourceManager.getAnim("explosion_sm")));
+    }
+
+    private void multiDirectionShoot(GameWorld gw) {
+        var p = ResourcePools.getPoolInstance("bullet");
+        float[] angles = new float[]{-30, 0, 30};
+        for (float shootAngle : angles) {
+            p.initObject(safeShootX(), safeShootY(), angle);
+            Bullet b = new Bullet(safeShootX(), safeShootY(), this.angle + shootAngle, ResourceManager.getSprites("bullet"));
+            b.setOwner(this.tkID);
+            gw.addGameObject(b);
+        }
+        Sound fire = ResourceManager.getSound("fire");
+        fire.setVolumeToMax();
+        fire.play();
+        gw.animations.add(new Animation(x, y, ResourceManager.getAnim("explosion_sm")));
     }
 
     private void rotateLeft() {
@@ -302,10 +348,11 @@ public class Tank extends GameObject implements Updatable, Collidable {
     }
 
     public void slowMovement() {
-        this.R = 1;
-    }
-    public void restoreMovement() {
         this.R = 2;
+    }
+
+    public void restoreMovement() {
+        this.R = 3;
     }
 
     public void takeDamage() {
@@ -321,8 +368,40 @@ public class Tank extends GameObject implements Updatable, Collidable {
         }
     }
 
+    public void addLife() {
+        this.lives += 1;
+    }
+
     private void resetPosition() {
         this.x = startX;
         this.y = startY;
+        this.restoreMovement();
+
+    }
+
+    public void fastMovement() {
+        R = 5;
+    }
+
+    public void enableMultiDirectionalShooting() {
+        multiDirectionalShootingEnabled = true;
+        int duration = 30000; // enjoy 30s
+        new Timer(duration, new ActionListener() {// refer to chatgpt, should give some credit to it
+            public void actionPerformed(ActionEvent e) {
+                disableMultiDirectionalShooting();
+            }
+        }).start();
+    }
+
+    public void disableMultiDirectionalShooting() {
+        multiDirectionalShootingEnabled = false;
+    }
+
+    public void stopMovement2() {
+        this.vx = 0;
+        this.vy = 0;
+
+        this.x -= this.vx;
+        this.y -= this.vy;
     }
 }

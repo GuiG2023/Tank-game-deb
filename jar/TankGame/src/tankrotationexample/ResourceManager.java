@@ -52,9 +52,10 @@ public class ResourceManager {
         ResourceManager.sprites.put("health", loadSprite("health.png"));
         ResourceManager.sprites.put("background", loadSprite("Background.bmp"));
         ResourceManager.sprites.put("bullet", loadSprite("bullet.png"));
-        ResourceManager.sprites.put("shield", loadSprite("shield3.png"));
+        ResourceManager.sprites.put("se", loadSprite("shell.png"));
         ResourceManager.sprites.put("speed", loadSprite("speed.png"));
         ResourceManager.sprites.put("sand", loadSprite("sand.png"));
+        ResourceManager.sprites.put("bw2", loadSprite("wall1.png"));
 
 
     }
@@ -93,7 +94,10 @@ public class ResourceManager {
             ResourceManager.sounds.put("wallBroken", loadSound("bgm/Explosion_med.wav"));
             ResourceManager.sounds.put("tankBroken", loadSound("bgm/Explosion_large.wav"));
             ResourceManager.sounds.put("start", loadSound("bgm/start.wav"));
+            ResourceManager.sounds.put("end", loadSound("bgm/end.wav"));
             ResourceManager.sounds.put("moving", loadSound("bgm/moving.wav"));
+            ResourceManager.sounds.put("pickup1", loadSound("bgm/Battle City SFX (15).wav"));
+            ResourceManager.sounds.put("pickup2", loadSound("bgm/Battle City SFX (14).wav"));
         } catch (IOException | LineUnavailableException | UnsupportedAudioFileException e) {
             throw new RuntimeException(e);
         }

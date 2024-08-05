@@ -9,23 +9,28 @@ import java.awt.image.BufferedImage;
  * @ Author : Guiran LIU
  * Description:
  */
-public class EnemyTank extends Tank implements Updatable,Collidable {
+public class EnemyFort extends Tank implements Updatable,Collidable {
     private static final double R = 0.9;
     private static final double MAX_ROTATION_PER_FRAME = 5 ;
     private float vx;
     private float vy;
     private final Tank playerTank;
-    private float detectionRange = 300;
+    private final Tank playerTank2;
+    private float detectionRange = 500;
 
-    public EnemyTank(float x, float y, BufferedImage img, Tank player) {
+    final long coolDown = 5000;
+
+    public EnemyFort(float x, float y, BufferedImage img, Tank player, Tank playerTank2) {
         super(x, y, 0, 0, 0, img);
         this.playerTank = player;
+        this.playerTank2 = playerTank2;
     }
 
     @Override
     public void update(GameWorld gw) {
         followPlayer();
-        autoShoot();
+        followPlayer2();
+        autoShoot(gw);
     }
 
 
@@ -36,7 +41,23 @@ public class EnemyTank extends Tank implements Updatable,Collidable {
             float distance = (float) Math.sqrt(dx * dx + dy * dy);
             if (distance < detectionRange) {
                 float targetAngle = (float) Math.toDegrees(Math.atan2(dy, dx));
-                this.angle = graduallyRotate(this.angle, targetAngle);  // 平滑旋转
+                this.angle = graduallyRotate(this.angle, targetAngle);
+                this.moveForwards();
+                this.moveBackwards();
+                this.rotateLeft();
+                this.rotateRight();
+            }
+        }
+    }
+
+    private void followPlayer2() {
+        if (playerTank2 != null && !playerTank2.isDestroyed()) {
+            float dx = playerTank2.getX() - this.getX();
+            float dy = playerTank2.getY() - this.getY();
+            float distance = (float) Math.sqrt(dx * dx + dy * dy);
+            if (distance < detectionRange) {
+                float targetAngle = (float) Math.toDegrees(Math.atan2(dy, dx));
+                this.angle = graduallyRotate(this.angle, targetAngle);
                 this.moveForwards();
                 this.moveBackwards();
                 this.rotateLeft();
@@ -56,11 +77,11 @@ public class EnemyTank extends Tank implements Updatable,Collidable {
         this.angle = angleToPlayer;
     }
 
-    private void autoShoot() {
+    private void autoShoot(GameWorld gw) {
         long currentTime = System.currentTimeMillis();
         if (currentTime > this.timeSinceLastShot + this.coolDown) {
             this.timeSinceLastShot = currentTime;
-//            shoot();
+            normalShoot(gw);
         }
     }
     private void rotateLeft() {
