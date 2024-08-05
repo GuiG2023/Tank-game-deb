@@ -34,7 +34,7 @@ public class GameWorld extends JPanel implements Runnable {
     List<Animation> animations = new ArrayList<>();
     private List<Tank> enemyTanks;
 
-    private final int MaxEnemies = 4;
+    private final int MaxEnemies = 5;
     private BufferedImage enemyImg;
 
 
@@ -213,15 +213,15 @@ public class GameWorld extends JPanel implements Runnable {
             UnbreakableWall2 wall = (UnbreakableWall2) obj2;
             Rectangle tankRect = tank.getHitBox();
             Rectangle wallRect = wall.getHitBox();
-            if (tankRect.getMaxX() > wallRect.getMinX() && tank.getVx() > 0) { // 坦克从左侧碰撞墙体
+            if (tankRect.getMaxX() > wallRect.getMinX() && tank.getVx() > 0) {
                 tank.setX((float) (wallRect.getMinX() - tankRect.width));
-            } else if (tankRect.getMinX() < wallRect.getMaxX() && tank.getVx() < 0) { // 坦克从右侧碰撞墙体
+            } else if (tankRect.getMinX() < wallRect.getMaxX() && tank.getVx() < 0) {
                 tank.setX((float) wallRect.getMaxX());
             }
 
-            if (tankRect.getMaxY() > wallRect.getMinY() && tank.getVy() > 0) { // 坦克从上方碰撞墙体
+            if (tankRect.getMaxY() > wallRect.getMinY() && tank.getVy() > 0) {
                 tank.setY((float) (wallRect.getMinY() - tankRect.height));
-            } else if (tankRect.getMinY() < wallRect.getMaxY() && tank.getVy() < 0) { // 坦克从下方碰撞墙体
+            } else if (tankRect.getMinY() < wallRect.getMaxY() && tank.getVy() < 0) {
                 tank.setY((float) wallRect.getMaxY());
             }
 

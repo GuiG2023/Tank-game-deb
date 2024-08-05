@@ -28,9 +28,9 @@ public class Tank extends GameObject implements Updatable, Collidable {
     private float vy;
     float angle;
 
-    private float R = 3;
+    private float R = 4;
     private float tempSpeed;
-    float ROTATIONSPEED = 3.0f;
+    float ROTATIONSPEED = 4.0f;
 
     private BufferedImage img;
     private boolean UpPressed;
@@ -47,7 +47,7 @@ public class Tank extends GameObject implements Updatable, Collidable {
     private boolean destroyed = false;
 
     private int lives = 3;
-    private int healthPerLife = 3;
+    private int healthPerLife = 4;
     private int currentHealth = healthPerLife;
 
     private float startX, startY;
@@ -352,7 +352,7 @@ public class Tank extends GameObject implements Updatable, Collidable {
     }
 
     public void restoreMovement() {
-        this.R = 3;
+        this.R = 4;
     }
 
     public void takeDamage() {
@@ -380,7 +380,7 @@ public class Tank extends GameObject implements Updatable, Collidable {
     }
 
     public void fastMovement() {
-        R = 5;
+        R = 7;
     }
 
     public void enableMultiDirectionalShooting() {
