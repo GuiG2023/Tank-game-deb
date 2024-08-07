@@ -34,7 +34,7 @@ public class GameWorld extends JPanel implements Runnable {
     List<Animation> animations = new ArrayList<>();
     private List<Tank> enemyTanks;
 
-    private final int MaxEnemies = 5;
+    private final int MaxEnemies = 6;
     private BufferedImage enemyImg;
 
 
@@ -303,7 +303,7 @@ public class GameWorld extends JPanel implements Runnable {
         }
 
         t1 = new Tank(200, 500, 0, 0, (short) 0, ResourceManager.getSprites("t1"));
-        t2 = new Tank(1300, 1300, 0, 0, (short) 0, ResourceManager.getSprites("t2"));
+        t2 = new Tank(900, 1500, 0, 0, (short) 0, ResourceManager.getSprites("t2"));
         this.gObj.add(t1);
         this.gObj.add(t2);
         /*
