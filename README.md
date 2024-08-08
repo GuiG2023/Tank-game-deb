@@ -14,6 +14,11 @@ The jar folder will be used to store the built jar of your term-project.
 
 `THIS FOLDER CAN NOT BE DELETED OR MOVED`
 
+## How to build  and run the game
+
+Go to jar folder, download the csc413-tankgame-GuiG2023.jar to your local folder(any),
+use terminal to that folder(cd), then use  java -jar csc413-tankgame-GuiG2023.jar
+
 # Required Information when Submitting Tank Game
 
 ## Version of Java Used: OpenJDK 21.0.2 2024-01-16
