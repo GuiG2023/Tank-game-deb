@@ -52,11 +52,11 @@ public class ResourceManager {
         ResourceManager.sprites.put("health", loadSprite("health.png"));
         ResourceManager.sprites.put("background", loadSprite("Background.bmp"));
         ResourceManager.sprites.put("bullet", loadSprite("bullet.png"));
-        ResourceManager.sprites.put("se", loadSprite("shell.png"));
+        ResourceManager.sprites.put("se", loadSprite("Shell.png"));
         ResourceManager.sprites.put("speed", loadSprite("speed.png"));
         ResourceManager.sprites.put("sand", loadSprite("sand.png"));
         ResourceManager.sprites.put("bw2", loadSprite("wall1.png"));
-        ResourceManager.sprites.put("pro", loadSprite("Shield3.png"));
+        ResourceManager.sprites.put("pro", loadSprite("shield3.png"));
 
 
 
