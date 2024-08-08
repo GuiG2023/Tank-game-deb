@@ -55,7 +55,7 @@ public class StartMenuPanel extends JPanel {
 
         JTextArea textArea = new JTextArea( "Player Tank Control:\n" +
                 "P1: Use 'WASD' keys to move the tank, and 'Space' to shoot.\n" +
-                "P2: Use arrow keys (Up/Down/Left/Right) to move the tank, and 'P' to shoot.\n\n" +
+                "P2: Use arrow keys (Up/Down/Left/Right) to move the tank, and 'P' to shoot.\n" +"Player tank will be reset to the starting position when lost life(destroyed)\n\n"+
                 "Game Terrain Introduction:\n" +
                 "- Impassable Concrete Walls: These are located at the map's edges and cannot be breached.\n" +
                 "- Indestructible Walls: These require ten continuous hits for destruction.\n" +
